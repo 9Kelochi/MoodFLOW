@@ -25,7 +25,7 @@ export class MoodAnalyzer {
             : -confidence;
     
         const scaled = (polarity + 1) / 2;
-        return scaled * 5;
+        return 1 + scaled * 4;
     }
 
     async getMoodScore(text: string) {
