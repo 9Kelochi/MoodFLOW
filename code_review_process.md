@@ -42,7 +42,7 @@ During the review process, the reviewer must:
 - Verify that project structure is maintained.
 
 ### 4. Review Testing
-- Ensure all tests are added or updated.
+- Ensure all necessary tests are added or updated.
 - Confirm all tests pass in the CI pipeline.
 
 ### 5. Check Documentation
