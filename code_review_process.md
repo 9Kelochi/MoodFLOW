@@ -20,6 +20,8 @@ The team will use a Pull Request workflow to ensure all code changes are reviewe
 
 ---
 ## Rotational Review Model
+- After submitting a PR, then request for a reviewer based on the established review rotation
+
 | Developer  | Reviewer(s) |
 | ------------- | ------------- |
 | Mohammad Kabir  | Addina Rahaman, Abdul Muswara  |
