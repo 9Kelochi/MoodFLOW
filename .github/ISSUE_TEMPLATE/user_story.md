@@ -4,6 +4,7 @@
 As a **[type of user]**,  
 I want **[feature]**,  
 so that **[benefit]**.
+- **[Num story points]** story points
 
 ## Description
 Provide more detail about the feature or change being requested.
