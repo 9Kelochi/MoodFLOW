@@ -1,4 +1,4 @@
-import Navbar from "@/components/Navbar";
+import DashboardHeader from "@/components/DashboardHeader";
 
 export default function DashboardPage() {
   const moods = [
@@ -31,9 +31,9 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-50">
-      <Navbar />
+      <DashboardHeader />
 
-      <div className="pt-28 pb-16 px-6">
+      <div className="pt-20 pb-16 px-6">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
