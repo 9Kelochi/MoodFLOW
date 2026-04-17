@@ -1,7 +1,6 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import { MoodAnalyzer } from "./services/MoodAnalyzer";
-import { db } from "./firebaseAdmin";
 
 export function createApp(analyzer: MoodAnalyzer) {
   const app = express();
@@ -35,6 +34,7 @@ export function createApp(analyzer: MoodAnalyzer) {
         return;
       }
 
+      const { db } = await import("./firebaseAdmin");
       const ref = db.collection("users").doc(uid).collection("moodEntries");
       const snap = await ref.orderBy("date", "asc").get();
 
