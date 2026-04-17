@@ -7,13 +7,13 @@ describe("formatMemberSince", () => {
   });
 
   it("returns em dash when toDate is missing", () => {
-    expect(formatMemberSince({} as Timestamp)).toBe("—");
+    expect(formatMemberSince({} as unknown as Timestamp)).toBe("—");
   });
 
   it("formats a valid Firestore timestamp", () => {
     const ts = {
       toDate: () => new Date(Date.UTC(2024, 0, 15)),
-    } as Timestamp;
+    } as unknown as Timestamp;
     expect(formatMemberSince(ts)).toMatch(/Jan/);
     expect(formatMemberSince(ts)).toMatch(/2024/);
   });
@@ -23,7 +23,7 @@ describe("formatMemberSince", () => {
       toDate: () => {
         throw new Error("bad");
       },
-    } as Timestamp;
+    } as unknown as Timestamp;
     expect(formatMemberSince(ts)).toBe("—");
   });
 });
