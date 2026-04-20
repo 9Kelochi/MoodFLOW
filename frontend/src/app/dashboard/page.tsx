@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import AvatarDropdown from "@/components/AvatarDropdown";
 import Link from "next/link";
+import Navbar from "@/components/Navbar";
+import MoodChart from "@/components/MoodChart";
 import {
   collection,
   addDoc,
@@ -54,6 +56,10 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const [open, setOpen] = useState(false);
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [chartRange, setChartRange] = useState("7 Days");
+  const [chartData, setChartData] = useState<any[]>([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -93,6 +99,28 @@ export default function DashboardPage() {
 
   fetchRecentEntries();
 }, [user, saved]);
+
+  useEffect(() => {
+    if (!user) {
+      setChartData([]);
+      return;
+    }
+
+    const fetchChartData = async () => {
+      try {
+        const response = await fetch(`http://localhost:3001/mood-trends?uid=${user.uid}&range=${encodeURIComponent(chartRange)}`);
+        if (!response.ok) {
+           throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setChartData(data.chartData || []);
+      } catch (err) {
+        console.error("Failed to fetch chart entries:", err);
+      }
+    };
+
+    fetchChartData();
+  }, [user, saved, chartRange]);
 
   const moods = [
     { label: "Very Bad", symbol: "😞", color: "border-amber-300", score: 1},
@@ -389,39 +417,31 @@ export default function DashboardPage() {
               </div>
 
               <div className="flex-1 flex flex-col px-6 pt-6 pb-4 gap-6">
-                <div className="relative flex-1 rounded-3xl border border-dashed border-slate-300 dark:border-slate-800 bg-gradient-to-t from-brand-50 via-white to-white dark:from-brand-950/40 dark:via-slate-950 dark:to-slate-950 overflow-hidden">
-                  <div className="absolute inset-x-6 top-4 flex items-center justify-between text-[11px] text-slate-400">
+                <div className="relative flex-1 rounded-3xl border border-dashed border-slate-300 dark:border-slate-800 bg-gradient-to-t from-brand-50 via-white to-white dark:from-brand-950/40 dark:via-slate-950 dark:to-slate-950 overflow-hidden flex flex-col min-h-[250px]">
+                  <div className="absolute inset-x-6 top-4 flex z-10 items-center justify-between text-[11px] text-slate-400 pointer-events-none">
                     <span>— Mood Level</span>
                     <span>Higher</span>
                   </div>
-                  {/* Simple illustrative graph */}
-                  <svg
-                    className="absolute inset-x-0 bottom-0 h-40 w-full text-brand-400/40"
-                    viewBox="0 0 100 40"
-                    preserveAspectRatio="none"
-                  >
-                    <path
-                      d="M0,35 Q15,20 30,28 T60,18 T100,22 L100,40 L0,40 Z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 bg-gradient-to-t from-brand-500/15 via-transparent to-transparent" />
+                  <div className="flex-1 w-full pt-12 pb-2 pr-4 z-10">
+                    <MoodChart data={chartData} />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-brand-500/5 via-transparent to-transparent pointer-events-none" />
                 </div>
 
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between text-xs text-slate-400">
-                    <span>Past 7 days</span>
-                    <span>Prototype preview · static data</span>
+                    <span>{chartRange === "All Time" ? "All Time" : `Past ${chartRange}`}</span>
                   </div>
                   <div className="inline-flex flex-wrap gap-2">
-                    {ranges.map((range, idx) => (
+                    {ranges.map((range) => (
                       <button
                         key={range}
                         type="button"
-                        className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border ${
-                          idx === 0
+                        onClick={() => setChartRange(range)}
+                        className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                          chartRange === range
                             ? "bg-brand-600 text-white border-brand-600 shadow-sm shadow-brand-600/30"
-                            : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 bg-slate-50/50 dark:bg-slate-950/50"
+                            : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 bg-slate-50/50 dark:bg-slate-950/50 hover:border-slate-300"
                         }`}
                       >
                         {range}
