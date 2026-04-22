@@ -14,8 +14,12 @@ import {
   getDocs,
   query,
   orderBy,
-  limit
+  limit,
+  doc,
+  deleteDoc
 } from "firebase/firestore";
+import { MoreHorizontal } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 
 type RecentEntry = {
@@ -60,6 +64,8 @@ export default function DashboardPage() {
   const [email, setEmail] = useState("");
   const [chartRange, setChartRange] = useState("7 Days");
   const [chartData, setChartData] = useState<any[]>([]);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [deleted, setDeleted] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -98,7 +104,7 @@ export default function DashboardPage() {
   };
 
   fetchRecentEntries();
-}, [user, saved]);
+}, [user, saved, deleted]);
 
   useEffect(() => {
     if (!user) {
@@ -120,7 +126,7 @@ export default function DashboardPage() {
     };
 
     fetchChartData();
-  }, [user, saved, chartRange]);
+  }, [user, saved, chartRange, deleted]);
 
   const moods = [
     { label: "Very Bad", symbol: "😞", color: "border-amber-300", score: 1},
@@ -217,6 +223,50 @@ export default function DashboardPage() {
   }, [saved]);
 
   const ranges = ["7 Days", "30 Days", "90 Days", "All Time"];
+
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setOpenMenuId(null);
+    };
+  
+    if (openMenuId !== null) {
+      window.addEventListener("click", handleClickOutside);
+    }
+  
+    return () => {
+      window.removeEventListener("click", handleClickOutside);
+    };
+  }, [openMenuId]);
+
+  const handleDelete = async (entryId: string) => {
+    try {
+      if (!user) {
+        setError("User not authenticated");
+        return;
+      }
+  
+      const entryRef = doc(db, "users", user.uid, "moodEntries", entryId);
+  
+      await deleteDoc(entryRef);
+  
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Failed to delete entry");
+      }
+    } finally {
+      setOpenMenuId(null);
+      setDeleted(true);
+    }
+  };
+
+  useEffect(() => {
+    if (deleted) {
+      const timer = setTimeout(() => setDeleted(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [deleted]);
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-50">
@@ -378,7 +428,7 @@ export default function DashboardPage() {
                     recentEntries.map((entry) => (
                       <article
                         key={entry.id}
-                        className="flex items-start gap-4 rounded-2xl border border-slate-100 dark:border-slate-900 bg-slate-50/80 dark:bg-slate-950/60 px-4 py-3"
+                        className="relative flex items-start gap-4 rounded-2xl border border-slate-100 dark:border-slate-900 bg-slate-50/80 dark:bg-slate-950/60 px-4 py-3"
                       >
                         <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-2xl bg-white dark:bg-slate-900 text-xl shadow-sm">
                           {emojiMap[entry.emojiScore] ?? "🙂"}
@@ -389,6 +439,32 @@ export default function DashboardPage() {
                             <p className="text-xs font-semibold px-2 py-1 rounded-full bg-slate-900 text-slate-50">
                               {formatEntryDate(entry.date)}
                             </p>
+
+                            <button
+                              onClick={(e) =>
+                                { e.stopPropagation();
+                                  setOpenMenuId(openMenuId === entry.id ? null : entry.id);
+                                }
+                              }
+                              className="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition"
+                            >
+                              <MoreHorizontal className="w-5 h-5 text-slate-500" />
+                            </button>
+
+                            {openMenuId === entry.id && (
+                              <div className="absolute top-10 -right-7 z-11 w-32 rounded-xl bg-white dark:bg-slate-900 shadow-lg border border-slate-200 dark:border-slate-800 p-2">
+                                
+                                <button
+                                  onClick={() => handleDelete(entry.id)}
+                                  className="flex w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 justify-around"
+                                >
+                                  <Trash2 className="w-4 h-4 text-red-500" />
+                                  Delete
+                                </button>
+
+                              </div>
+                            )}
+
                           </div>
 
                           <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -399,6 +475,11 @@ export default function DashboardPage() {
                     ))
                   )}
                 </div>
+                { deleted &&
+                  <p className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50/80 dark:bg-red-900/20 px-4 py-3 text-sm text-red-600 m-4">
+                    Entry deleted.
+                  </p>
+                }
               </section>
             </div>
 
