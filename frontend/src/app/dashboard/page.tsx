@@ -420,6 +420,11 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="px-6 py-4 space-y-4">
+                  { deleted &&
+                    <p className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50/80 dark:bg-red-900/20 px-4 py-3 text-sm text-red-600 m-4">
+                      Entry deleted.
+                    </p>
+                  }
                   {recentEntries.length === 0 ? (
                     <div className="rounded-2xl border border-slate-100 dark:border-slate-900 bg-slate-50/80 dark:bg-slate-950/60 px-4 py-6 text-sm text-slate-500 dark:text-slate-400">
                       No mood entries yet. Save your first entry above.
@@ -456,7 +461,7 @@ export default function DashboardPage() {
                                 
                                 <button
                                   onClick={() => handleDelete(entry.id)}
-                                  className="flex w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 justify-around"
+                                  className="flex w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 justify-around items-center"
                                 >
                                   <Trash2 className="w-4 h-4 text-red-500" />
                                   Delete
@@ -475,11 +480,6 @@ export default function DashboardPage() {
                     ))
                   )}
                 </div>
-                { deleted &&
-                  <p className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50/80 dark:bg-red-900/20 px-4 py-3 text-sm text-red-600 m-4">
-                    Entry deleted.
-                  </p>
-                }
               </section>
             </div>
 
