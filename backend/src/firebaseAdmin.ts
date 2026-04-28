@@ -8,7 +8,14 @@ try {
   });
 } catch (error) {
   // Fallback to Application Default Credentials in production (Cloud Run)
-  admin.initializeApp();
+  console.log("Local service account not found, falling back to ADC...");
+  try {
+    admin.initializeApp({
+      projectId: "moodflow-35f58"
+    });
+  } catch (adcError) {
+    console.error("Failed to initialize Firebase Admin with ADC:", adcError);
+  }
 }
 
 export const db = admin.firestore();
