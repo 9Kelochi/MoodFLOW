@@ -114,7 +114,8 @@ export default function DashboardPage() {
 
     const fetchChartData = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/mood-trends?uid=${user.uid}&range=${encodeURIComponent(chartRange)}`);
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+        const response = await fetch(`${baseUrl}/mood-trends?uid=${user.uid}&range=${encodeURIComponent(chartRange)}`);
         if (!response.ok) {
            throw new Error("Network response was not ok");
         }
@@ -173,7 +174,8 @@ export default function DashboardPage() {
         return;
       }
 
-      const response = await fetch("http://localhost:3001/analyzeMood", {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+      const response = await fetch(`${baseUrl}/analyzeMood`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
